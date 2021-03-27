@@ -36,12 +36,16 @@ class ViewController: UIViewController {
     @IBOutlet var equalButton: UIButton!
     
     // MARK: - Private Properties
+    private var value = "0"
     private var valueOne = "0"
+    private var valueTwo = "0"
+    private var oper = "/"
+    private var percent = false
     
     // MARK: - Override Methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        operationLabel.text = valueOne
+        operationLabel.text = value
     }
     
     override func viewWillLayoutSubviews() {
@@ -108,46 +112,117 @@ class ViewController: UIViewController {
     }
     
     @IBAction func dotButtonPressed() {
-        if !valueOne.contains(".") && valueOne != "" || valueOne == "0" {
-            valueOne += "."
+        if !value.contains(".") && value != "" || value == "0" {
+            value += "."
             showOperationLabel()
         }
     }
     
     @IBAction func acButtonPressed() {
-        valueOne = "0"
+        value = "0"
         showOperationLabel()
     }
     
     @IBAction func plusMinusButtonPressed() {
-        if let i = Double(valueOne) {
-            valueOne = String(i * -1)
+        if let symbol = Double(value) {
+            value = String(symbol * -1)
         }
         showOperationLabel()
     }
     
     @IBAction func percentButtonPressed() {
-        if let i = Double(valueOne) {
-            valueOne = String(i / 100)
+        if value != "0" {
+            switch valueOne {
+            case "0":
+                if let symbol = Double(value) {
+                    value = String(symbol / 100)
+                }
+            default:
+                percent = true
+            }
         }
         showOperationLabel()
+        
     }
     
+    @IBAction func divButtonPressed() {
+        operation()
+        oper = "/"
+    }
     
+    @IBAction func multButtonPressed() {
+        operation()
+        oper = "*"
+    }
     
+    @IBAction func minusButtonPressed() {
+        operation()
+        oper = "-"
+    }
     
+    @IBAction func plusButtonPressed() {
+        operation()
+        oper = "+"
+    }
+    
+    @IBAction func equalButtonPressed() {
+        valueTwo = value
+        
+        if let symbolOne = Double(valueOne),
+           let symbolTwo = Double(valueTwo) {
+            
+            switch oper {
+            case "/" where symbolTwo != 0:
+                value = String(symbolOne / symbolTwo)
+                oper = ""
+            case "/" where symbolTwo == 0:
+                value = "Это error (:"
+                oper = ""
+            case "*":
+                value = String(symbolOne * symbolTwo)
+                oper = ""
+            case "-":
+                if percent {
+                    value = String(symbolOne - symbolOne * symbolTwo / 100)
+                    percent = false
+                } else {
+                    value = String(symbolOne - symbolTwo)
+                }
+                oper = ""
+            case "+":
+                if percent {
+                    value = String(symbolOne + symbolOne * symbolTwo / 100)
+                    percent = false
+                } else {
+                    value = String(symbolOne + symbolTwo)
+                }
+                oper = ""
+            default:
+                break
+            }
+        }
+        
+        showOperationLabel()
+        valueOne = "0"
+        valueTwo = "0"
+    }
     
     // MARK: - Private Methods
     private func showOperationLabel() {
-        operationLabel.text = valueOne
+        operationLabel.text = value
     }
     
     private func zeroCheck(andAdd symbol: String) {
-        if valueOne != "0" {
-            valueOne += symbol
-        } else if valueOne == "0" {
-            valueOne = symbol
+        if value != "0" {
+            value += symbol
+        } else if value == "0" {
+            value = symbol
         }
+    }
+    
+    private func operation() {
+        valueOne = value
+        value = "0"
     }
     
 }
